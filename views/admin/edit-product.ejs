@@ -5,7 +5,7 @@
         </header> 
        <main>
         <% var productPath = editing ? 'edit-product' : 'add-product' %>
-        <form class="product-form" action="/admin/<%= productPath %>" method="POST" enctype="multipart/form-data">
+        <form class="product-form" action="/admin/<%= productPath %>" method="POST">
         
             <div class = "form-control">
                 <label for = "title">Title</label>

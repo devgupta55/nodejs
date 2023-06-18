@@ -49,14 +49,21 @@ exports.postEditProduct = (request, response, next) => {
     const updatedProduct = new Product(
         prodId, 
         updatedTitle,
-        updatedPrice,
         updatedImageUrl,
+        updatedPrice,
         updatedDesc
     );
     updatedProduct.save();
     response.redirect('/admin/products');
     
 };
+
+exports.postDeleteProduct = (response, request, next) => {
+    //const prodId = request.body.productId;
+    const prodId = request.params.productId;
+    Product.deleteById(prodId);
+    response.redirect('/admin/products');
+}
 
 exports.getProducts = (request, response, next) => {
     Product.fetchAll(products =>{
