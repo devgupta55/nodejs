@@ -15,8 +15,12 @@ exports.postAddProduct = (request, response, next)=>{
     const description= request.body.description;
     const product = new Product(null,title, imageUrl, price, description);
 
-    product.save();
-    response.redirect('/'); //this will automatically redirect to / route.
+    product
+    .save()
+    .then(() => {
+        response.redirect('/'); //this will automatically redirect to / route.
+    })
+    .catch(err => console.log(err));
 };
 
 exports.getEditProduct=(request, response, next) =>{ 
@@ -58,9 +62,8 @@ exports.postEditProduct = (request, response, next) => {
     
 };
 
-exports.postDeleteProduct = (response, request, next) => {
-    //const prodId = request.body.productId;
-    const prodId = request.params.productId;
+exports.postDeleteProduct = (request, response, next) => {
+    const prodId = request.body.productId;
     Product.deleteById(prodId);
     response.redirect('/admin/products');
 }

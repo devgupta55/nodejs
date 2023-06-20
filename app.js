@@ -7,6 +7,7 @@ const rootDir = require('./util/path');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/error404');
+const sequelize = require('./util/database');
 
 app.set('view engine', 'ejs'); //templating engine
 app.set('views', 'views');
@@ -22,4 +23,12 @@ app.use(shopRoutes);
 //handled by the above middlewares it would land here
 app.use(errorController.error404);
 
-app.listen(3000);
+//it syncs our models to the db by creating the appt. tables
+sequelize.sync()
+.then(result => {
+    console.log(result);
+    app.listen(3000);
+})
+.catch(err => {
+    console.log(err);
+})
