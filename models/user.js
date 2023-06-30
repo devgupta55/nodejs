@@ -49,7 +49,7 @@ class User {
             return i.productId;
         });
         return db
-        .collection('prodcuts')
+        .collection('products')
         .find({_id: {$in: productIds}})
         .toArray()
         .then(products => {
@@ -57,7 +57,7 @@ class User {
                 return {
                     ...p, 
                     quantity: this.cart.items.find(i => {
-                        return i.productId.toString() === p.id.toString();
+                        return i.productId.toString() === p._id.toString();
                     })
                     .quantity
                 };
