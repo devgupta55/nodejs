@@ -67,21 +67,15 @@ exports.postCart = (request, response, next) => {
     });
 }
 
-// exports.deleteCartProduct= (request, response, next) =>{
-//     const prodId = request.body.productId;
-//     request.user.getCart()
-//     .then(cart => {
-//         return cart.getProducts({where: {id: prodId}});
-//     })
-//     .then(products => {
-//         const product = products[0];
-//         return product.cartItem.destroy();
-//     })
-//     .then(result => {
-//         response.redirect('/cart');
-//     })
-//     .catch(err => console.log(err));
-// }
+exports.deleteCartProduct= (request, response, next) =>{
+    const prodId = request.body.productId;
+    request.user
+    .deleteItemFromCart(prodId)
+    .then(result => {
+        response.redirect('/cart');
+    })
+    .catch(err => console.log(err));
+}
 
 // exports.getCheckout = (request, response, next) =>{
 //     response.render('shop/checkout', {
@@ -90,48 +84,29 @@ exports.postCart = (request, response, next) => {
 //     })
 // }
 
-// exports.postOrder = (request, response, next) => {
-//     let fetchedCart;
-//     request.user
-//       .getCart()
-//       .then(cart => {
-//         fetchedCart = cart;
-//         return cart.getProducts();
-//       })
-//       .then(products => {
-//         return request.user
-//           .createOrder()
-//           .then(order => {
-//             return order.addProducts(
-//               products.map(product => {
-//                 product.orderItem = { quantity: product.cartItem.quantity };
-//                 return product;
-//               })
-//             );
-//           })
-//           .catch(err => console.log(err));
-//       })
-//       .then(result => {
-//         return fetchedCart.setProducts(null);
-//       })
-//       .then(result => {
-//         response.redirect('/orders');
-//       })
-//       .catch(err => console.log(err));
-//   };
+exports.postOrder = (request, response, next) => {
+    let fetchedCart;
+    request.user
+    .addOrder()
+    .then(result => {
+        response.redirect('/orders');
+    })
+    .catch(err => console.log(err));
+  };
 
-// exports.getOrders = (request, response, next) => {
-//     request.user.getOrders({include: ['products']})
-//     .then(orders => {
-//         response.render('shop/orders', {
-//             path : "/orders",
-//             pageTitle : 'Orders',
-//             orders: orders
-//         })
-//     })
-//     .catch(err => console.log(err));
+exports.getOrders = (request, response, next) => {
+    request.user
+    .getOrders()
+    .then(orders => {
+        response.render('shop/orders', {
+            path : "/orders",
+            pageTitle : 'Orders',
+            orders: orders
+        })
+    })
+    .catch(err => console.log(err));
    
-// }
+}
 
 
 
