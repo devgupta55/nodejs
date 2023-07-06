@@ -18,7 +18,8 @@ exports.postAddProduct = (request, response, next)=>{
         title: title,
         price: price,
         description: description,
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        userId: request.user
     });
     product
     .save()
@@ -39,8 +40,6 @@ exports.getEditProduct=(request, response, next) =>{
     }
     const prodId = request.params.productId;  
     Product.findById(prodId)
-    //above line returns array now.
-    // Product.findByPk(prodId)
     .then(product => {
         if(!product){
             return response.redirect('/');
@@ -62,15 +61,14 @@ exports.postEditProduct = (request, response, next) => {
     const updatedImageUrl = request.body.imageUrl;
     const updatedDesc = request.body.description;
     
-        const product = new Product(
-            updatedTitle, 
-            updatedPrice, 
-            updatedDesc,updatedImageUrl, 
-            prodId
-            );
-      
-    product
-    .save()
+    Product.findById(prodId).then(product => {
+        product
+            product.title = updatedTitle;
+            product.price = updatedPrice;
+            product.description = updatedDesc;
+            product.imageUrl = updatedImageUrl;
+            return product.save();
+    })
     .then(result => {
         console.log('Updated Product');
         response.redirect('/admin/products');
@@ -81,7 +79,7 @@ exports.postEditProduct = (request, response, next) => {
 
 exports.postDeleteProduct = (request, response, next) => {
     const prodId = request.body.productId;
-   const result = Product.deleteById(prodId)
+    Product.findByIdAndRemove(prodId)
     .then(() => {
         console.log("Destroyed Product");
         response.redirect('/admin/products');
@@ -90,8 +88,11 @@ exports.postDeleteProduct = (request, response, next) => {
 }
 
 exports.getProducts = (request, response, next) => {
-    Product.fetchAll()
+    Product.find()
+    // .select('title price -_id')
+    // .populate('userId', 'name')
     .then(products => {
+        console.log(products);
         response.render('admin/products', {
             prods: products,
             pageTitle: 'Admin Products',

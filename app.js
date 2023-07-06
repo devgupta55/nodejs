@@ -8,7 +8,7 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const errorController = require('./controllers/error404');
 
-//const User = require ('./models/user');
+const User = require ('./models/user');
 
 const mongoose = require('mongoose');
 
@@ -19,18 +19,14 @@ app.set('views', 'views');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use((request, response, next) => {
-//     User.findById('649c760e2b4700c9f8954feb')
-//     .then(user =>{
-//         request.user = new User(user.name, 
-//             user.email, 
-//             user.cart, 
-//             user._id
-//             );
-//         next();
-//     })
-//     .catch(err => console.log(err));
-// })
+app.use((request, response, next) => {
+    User.findById('64a588a1f72fa4d2c08fec5d')
+    .then(user =>{
+        request.user = user;
+        next();
+    })
+    .catch(err => console.log(err));
+})
 
 app.use(shopRoutes);
 app.use('/admin',adminRoutes);
@@ -42,6 +38,18 @@ app.use(errorController.error404);
 mongoose
 .connect('mongodb+srv://devgupta200204:devgupta55@cluster0.q3eygnj.mongodb.net/shop?retryWrites=true&w=majority')
 .then(result => {
+    User.findOne().then(user => {
+        if(!user){
+            const user = new User({
+                name: "Dev",
+                email: "dev@test.com",
+                cart: {
+                    items: []
+                }
+            });
+            user.save();
+        }
+    })
     app.listen(3000);
 })
 .catch(err => console.log(err));
