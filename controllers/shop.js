@@ -1,5 +1,5 @@
 const Product  = require ('../models/product');
-//const Cart = require ('../models/cart');
+const Order = require ('../models/order');
 
 exports.getProducts = (request, response, next)=>{
     Product.find()
@@ -8,7 +8,8 @@ exports.getProducts = (request, response, next)=>{
         response.render('shop/product-list',{
             prods: products, 
             pageTitle: 'All Products', 
-            path: '/products'
+            path: '/products',
+            isAuthenticated: request.isAuthenticated
         })
     })
     .catch(err => console.log(err));
@@ -20,7 +21,8 @@ exports.getIndex = (request, response, next) =>{
         response.render('shop/index',{
             prods: products, 
             pageTitle: 'shop', 
-            path: '/'
+            path: '/',
+            isAuthenticated: request.isAuthenticated
         })
     })
     .catch(err => console.log(err));
@@ -33,7 +35,8 @@ exports.getProduct = (request, response, next) => {
     response.render('shop/product-detail', {
         product: product, 
         pageTitle: product.title,
-        path: '/products'
+        path: '/products',
+        isAuthenticated: request.isAuthenticated
     });
    })
    .catch(err => console.log(err));
@@ -42,12 +45,15 @@ exports.getProduct = (request, response, next) => {
 
 exports.getCart = (request, response, next) =>{
     request.user
-    .getCart()
-    .then(products => {
+    .populate('cart.items.productId')
+    .then(user => {
+        console.log(user.cart.items);
+        const products = user.cart.items;
         response.render('shop/cart',{
             path: '/cart',
             pageTitle: "Your Cart",
-            products: products
+            products: products,
+            isAuthenticated: request.isAuthenticated
         });
     })
     .catch(err => console.log(err));
@@ -71,7 +77,7 @@ exports.postCart = (request, response, next) => {
 exports.deleteCartProduct= (request, response, next) =>{
     const prodId = request.body.productId;
     request.user
-    .deleteItemFromCart(prodId)
+    .removeFromCart(prodId)
     .then(result => {
         response.redirect('/cart');
     })
@@ -86,27 +92,45 @@ exports.deleteCartProduct= (request, response, next) =>{
 // }
 
 exports.postOrder = (request, response, next) => {
-    let fetchedCart;
     request.user
-    .addOrder()
+    .populate('cart.items.productId')
+    .then(user => {
+        console.log(user.cart.items);
+        const products = user.cart.items.map(i=>{
+            return {
+                quantity: i.quantity, 
+                product: {...i.productId._doc}
+            };
+        });
+        const order = new Order({
+            user:{
+                name: request.user.name,
+                userId: request.user
+            },
+            products: products
+        });
+        return order.save();
+    })
     .then(result => {
+        return request.user.clearCart();
+    })
+    .then(()=>{
         response.redirect('/orders');
     })
     .catch(err => console.log(err));
-  };
+};
 
 exports.getOrders = (request, response, next) => {
-    request.user
-    .getOrders()
+    Order.find({'user.userId': request.user._id})
     .then(orders => {
         response.render('shop/orders', {
             path : "/orders",
             pageTitle : 'Orders',
-            orders: orders
+            orders: orders,
+            isAuthenticated: request.isAuthenticated
         })
     })
     .catch(err => console.log(err));
-   
 }
 
 

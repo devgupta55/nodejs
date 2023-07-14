@@ -6,11 +6,13 @@ const rootDir = require('./util/path');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/error404');
 
 const User = require ('./models/user');
 
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 app.set('view engine', 'ejs'); //templating engine
 app.set('views', 'views');
@@ -29,7 +31,15 @@ app.use((request, response, next) => {
 })
 
 app.use(shopRoutes);
+app.use(authRoutes);
 app.use('/admin',adminRoutes);
+app.use(
+    session({
+        secret: 'my secret', 
+        resave: false, 
+        saveUninitialized: false
+    })
+);
 
 //error 404 middleware as if the request is not
 //handled by the above middlewares it would land here
