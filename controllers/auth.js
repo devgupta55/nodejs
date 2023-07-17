@@ -4,7 +4,7 @@ exports.getLogin = (request, response, next) => {
     // .split(';')[0]
     // .trim()
     // .split('=')[1];
-    console.log(request.session.isLoggedIn);
+    console.log(request.session?.isLoggedIn);
     response.render('auth/login', {
         path : "/login",
         pageTitle : 'Login',

@@ -13,7 +13,14 @@ const User = require ('./models/user');
 
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
+const MONGODB_URI = 'mongodb+srv://devgupta200204:devgupta55@cluster0.q3eygnj.mongodb.net/';
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: 'sessions'
+});
+store.on('error', (error) => console.log(error));
 app.set('view engine', 'ejs'); //templating engine
 app.set('views', 'views');
 //request parsing middleware
@@ -29,24 +36,25 @@ app.use((request, response, next) => {
     })
     .catch(err => console.log(err));
 })
-
-app.use(shopRoutes);
-app.use(authRoutes);
-app.use('/admin',adminRoutes);
 app.use(
     session({
         secret: 'my secret', 
         resave: false, 
-        saveUninitialized: false
+        saveUninitialized: false,
+        store: store
     })
 );
+app.use(shopRoutes);
+app.use(authRoutes);
+app.use('/admin',adminRoutes);
+
 
 //error 404 middleware as if the request is not
 //handled by the above middlewares it would land here
 app.use(errorController.error404);
 
 mongoose
-.connect('mongodb+srv://devgupta200204:devgupta55@cluster0.q3eygnj.mongodb.net/shop?retryWrites=true&w=majority')
+.connect(MONGODB_URI)
 .then(result => {
     User.findOne().then(user => {
         if(!user){
