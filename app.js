@@ -15,7 +15,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
-const MONGODB_URI = 'mongodb+srv://devgupta200204:devgupta55@cluster0.q3eygnj.mongodb.net/';
+const MONGODB_URI = 'mongodb+srv://devgupta200204:devgupta55@cluster0.q3eygnj.mongodb.net/shop';
 const store = new MongoDBStore({
     uri: MONGODB_URI,
     collection: 'sessions'
